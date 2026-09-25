@@ -1,0 +1,6 @@
+app:
+  security:
+    dev-jwt-secret: ${APP_DEV_JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+logging:
+  level:
+    com.geekyants.assessment: DEBUG

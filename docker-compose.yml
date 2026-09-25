@@ -1,0 +1,21 @@
+# Local development: MySQL for the platform. Run the backend with `mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+# and the frontend with `npm run dev`. Credentials are local-only.
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: assessment
+      MYSQL_USER: assessment
+      MYSQL_PASSWORD: assessment
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  mysql-data:

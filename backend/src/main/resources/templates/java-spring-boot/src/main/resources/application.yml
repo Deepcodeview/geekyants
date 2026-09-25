@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: {{ARTIFACT_ID}}
+{{SPRING_CONFIG}}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: assessment-platform
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/assessment?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:assessment}
+    password: ${DB_PASSWORD:assessment}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Set to your OIDC provider in non-dev environments (Keycloak, Auth0, Entra ID, ...).
+          issuer-uri: ${OIDC_ISSUER_URI:}
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8080}
+  cors-allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  security:
+    # Claim that carries platform roles (ADMIN, CANDIDATE, INTEGRATION).
+    roles-claim: ${APP_ROLES_CLAIM:roles}
+    # Claim on candidate tokens that carries the candidate's external ID.
+    candidate-id-claim: ${APP_CANDIDATE_ID_CLAIM:candidate_id}
+    # HS256 secret for locally minted tokens. Only used when issuer-uri is empty (dev).
+    dev-jwt-secret: ${APP_DEV_JWT_SECRET:}
+  github:
+    api-url: ${GITHUB_API_URL:https://api.github.com}
+    organization: ${GITHUB_ORG:assessment-platform}
+    # Token of a GitHub App installation or fine-grained PAT with repo admin, contents, webhooks and actions scopes.
+    token: ${GITHUB_TOKEN:}
+    webhook-secret: ${GITHUB_WEBHOOK_SECRET:}
+    # Platform-owned private repo that holds the evaluation workflow and hidden tests.
+    evaluation-repo: ${GITHUB_EVALUATION_REPO:evaluation-runner}
+    evaluation-workflow: ${GITHUB_EVALUATION_WORKFLOW:evaluate.yml}
+    evaluation-ref: ${GITHUB_EVALUATION_REF:main}
+    # Rulesets block force-push and tag deletion so frozen submissions stay reachable.
+    # Requires GitHub Team or Enterprise for private repositories. When true, provisioning fails if they cannot be applied.
+    enforce-rulesets: ${GITHUB_ENFORCE_RULESETS:true}
+  evaluation:
+    # Shared secret used by the evaluation runner to sign result callbacks.
+    callback-secret: ${EVALUATION_CALLBACK_SECRET:}
+  llm:
+    model: ${LLM_MODEL:claude-opus-5}
+    max-tokens: ${LLM_MAX_TOKENS:16000}
+    # Server-side refusal fallbacks: a refused request is retried on a fallback model chosen by the API.
+    refusal-fallbacks: ${LLM_REFUSAL_FALLBACKS:true}
+  assessment:
+    default-duration-days: 7
+    mcq-min-questions: 12
+    mcq-max-questions: 15
+    mcq-time-limit-minutes: 30
+    # Upper bound on source characters sent to code analysis. Files beyond this are recorded as skipped.
+    analysis-max-source-chars: 400000

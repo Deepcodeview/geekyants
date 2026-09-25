@@ -1,0 +1,236 @@
+# Final evaluation of a frozen submission. Lives in a platform-owned private repository;
+# candidates never see or modify it. Dispatched by the platform with the exact commit SHA.
+#
+# Isolation model:
+#   fetch    - has the read token, checks out the candidate commit, runs nothing from it.
+#   evaluate - runs candidate code, has no secrets and no token permissions.
+#              Black-box stages (docker build, deploy, smoke, hidden API tests) run first and their
+#              results are uploaded before any candidate code executes on the runner itself.
+#   report   - has the callback secret, runs nothing from the candidate, signs and posts results.
+name: evaluate
+
+on:
+  workflow_dispatch:
+    inputs:
+      evaluation_id:
+        required: true
+      repository:
+        description: owner/name of the candidate repository
+        required: true
+      commit_sha:
+        required: true
+      callback_url:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evaluation-${{ inputs.evaluation_id }}
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate inputs
+        env:
+          REPO: ${{ inputs.repository }}
+          SHA: ${{ inputs.commit_sha }}
+          EVAL: ${{ inputs.evaluation_id }}
+          ORG: ${{ github.repository_owner }}
+        run: |
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "bad sha"; exit 1; }
+          [[ "$REPO" =~ ^${ORG}/assessment-[a-z0-9-]+$ ]] || { echo "repository outside org"; exit 1; }
+          [[ "$EVAL" =~ ^EVAL-[0-9A-Z]{10}$ ]] || { echo "bad evaluation id"; exit 1; }
+
+      - name: Checkout candidate commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.commit_sha }}
+          token: ${{ secrets.CANDIDATE_REPO_READ_TOKEN }}
+          path: candidate
+          persist-credentials: false
+
+      - name: Verify commit
+        env:
+          SHA: ${{ inputs.commit_sha }}
+        run: test "$(git -C candidate rev-parse HEAD)" = "$SHA"
+
+      - name: Package source
+        run: tar --exclude=.git -czf candidate.tgz -C candidate .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate-source
+          path: candidate.tgz
+          retention-days: 30
+
+  evaluate:
+    needs: fetch
+    # Prefer a self-hosted runner with outbound network restricted to package registries,
+    # so candidate code cannot exfiltrate hidden tests.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions: {}
+    steps:
+      - name: Checkout evaluation kit
+        uses: actions/checkout@v4
+        with:
+          path: runner
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidate-source
+
+      - name: Unpack
+        run: mkdir candidate && tar -xzf candidate.tgz -C candidate && mkdir -p results
+
+      # ---- Black-box stages: candidate code runs only inside containers ----
+      - name: Docker build
+        id: docker_build
+        continue-on-error: true
+        working-directory: candidate
+        run: docker build -t candidate-app:eval . 2>&1 | tail -50
+
+      - name: Deploy test environment
+        id: deploy
+        if: steps.docker_build.outcome == 'success'
+        continue-on-error: true
+        run: |
+          docker compose -f runner/kit/compose.eval.yml up -d --wait --wait-timeout 180
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8080/actuator/health && exit 0
+            sleep 3
+          done
+          docker compose -f runner/kit/compose.eval.yml logs app | tail -100
+          exit 1
+
+      - name: Smoke tests
+        id: smoke
+        if: steps.deploy.outcome == 'success'
+        continue-on-error: true
+        run: curl -fsS http://localhost:8080/actuator/health | grep -q '"UP"'
+
+      - name: Hidden API tests
+        id: hidden
+        if: steps.deploy.outcome == 'success'
+        continue-on-error: true
+        env:
+          BASE_URL: http://localhost:8080
+          RESULTS: results/hidden-tests.json
+        run: runner/kit/hidden-tests/java-spring-boot/run.sh
+
+      - name: Record black-box outcomes
+        if: always()
+        env:
+          DOCKER_BUILD: ${{ steps.docker_build.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          SMOKE: ${{ steps.smoke.outcome }}
+          HIDDEN: ${{ steps.hidden.outcome }}
+        run: |
+          printf '{"docker_build":"%s","deploy":"%s","smoke_tests":"%s","api_tests":"%s"}' \
+            "$DOCKER_BUILD" "$DEPLOY" "$SMOKE" "$HIDDEN" > results/blackbox-stages.json
+          docker compose -f runner/kit/compose.eval.yml down -v || true
+
+      # Uploaded before candidate code runs on the host; artifact names are immutable.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blackbox-results
+          path: results/
+          retention-days: 30
+
+      # ---- White-box stages: candidate build and tests run on the runner ----
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        working-directory: candidate
+        run: mvn -B -q -DskipTests package
+
+      - name: Unit and integration tests
+        id: tests
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        working-directory: candidate
+        run: mvn -B verify
+
+      - name: Static analysis
+        id: static
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        working-directory: candidate
+        run: mvn -B -q com.github.spotbugs:spotbugs-maven-plugin:4.10.4.1:check -Dspotbugs.threshold=High
+
+      - name: Security scan
+        id: security
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: candidate
+          scanners: vuln,secret
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+
+      - name: Collect white-box results
+        if: always()
+        env:
+          BUILD: ${{ steps.build.outcome }}
+          TESTS: ${{ steps.tests.outcome }}
+          STATIC: ${{ steps.static.outcome }}
+          SECURITY: ${{ steps.security.outcome }}
+        run: |
+          mkdir -p whitebox/reports
+          cp candidate/target/surefire-reports/*.xml whitebox/reports/ 2>/dev/null || true
+          mkdir -p whitebox/it-reports
+          cp candidate/target/failsafe-reports/*.xml whitebox/it-reports/ 2>/dev/null || true
+          printf '{"build":"%s","tests":"%s","static_analysis":"%s","security_scan":"%s"}' \
+            "$BUILD" "$TESTS" "$STATIC" "$SECURITY" > whitebox/stages.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: whitebox-results
+          path: whitebox/
+          retention-days: 30
+
+  report:
+    needs: [fetch, evaluate]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: artifacts
+
+      - name: Assemble result
+        env:
+          EVALUATION_ID: ${{ inputs.evaluation_id }}
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          FETCH_RESULT: ${{ needs.fetch.result }}
+        run: python3 kit/scripts/assemble_result.py artifacts > result.json
+
+      - name: Sign and send
+        env:
+          SECRET: ${{ secrets.EVALUATION_CALLBACK_SECRET }}
+          CALLBACK_URL: ${{ inputs.callback_url }}
+        run: |
+          SIG="sha256=$(openssl dgst -sha256 -hmac "$SECRET" -hex < result.json | sed 's/^.*= //')"
+          curl -fsS --retry 5 --retry-all-errors -X POST "$CALLBACK_URL" \
+            -H "Content-Type: application/json" -H "X-Signature-256: $SIG" --data-binary @result.json
