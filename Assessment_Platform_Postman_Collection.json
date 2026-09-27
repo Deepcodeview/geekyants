@@ -1,0 +1,476 @@
+{
+  "info": {
+    "_postman_id": "a9b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "name": "AI Assessment Platform — Complete API Suite",
+    "description": "Full end-to-end API collection for the AI Customized Project Assessment Platform. Covers Intake, Blueprint generation, GitHub Provisioning, Submission Freeze, HMAC Callbacks, MCQ Evaluation, and Final Hiring Reports.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "candidate_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "integration_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "assignment_id",
+      "value": "ASSIGN-FTBA1KQAZJ",
+      "type": "string"
+    },
+    {
+      "key": "blueprint_id",
+      "value": "BP-DRAFT-1",
+      "type": "string"
+    },
+    {
+      "key": "evaluation_id",
+      "value": "EVAL-001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Authentication (Dev Tokens)",
+      "item": [
+        {
+          "name": "1. Generate Admin JWT Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('admin_token', jsonData.token);",
+                  "    console.log('Saved admin_token successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\",\n  \"subject\": \"admin@geekyants.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dev/tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "tokens"]
+            },
+            "description": "Generates a stateless JWT token with ROLE_ADMIN for administrative operations."
+          }
+        },
+        {
+          "name": "2. Generate Candidate JWT Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('candidate_token', jsonData.token);",
+                  "    console.log('Saved candidate_token successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"CANDIDATE\",\n  \"subject\": \"deepak@example.com\",\n  \"candidateId\": \"CAND-9912\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dev/tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "tokens"]
+            },
+            "description": "Generates a stateless JWT token with ROLE_CANDIDATE bound to a specific Candidate ID."
+          }
+        },
+        {
+          "name": "3. Generate Integration ATS JWT Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('integration_token', jsonData.token);",
+                  "    console.log('Saved integration_token successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"INTEGRATION\",\n  \"subject\": \"workday-ats-sync\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dev/tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["dev", "tokens"]
+            },
+            "description": "Generates a stateless JWT token with ROLE_INTEGRATION for external ATS systems."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Health & Actuator Telemetry",
+      "item": [
+        {
+          "name": "Actuator Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            },
+            "description": "Returns Spring Boot actuator liveness and readiness probe status."
+          }
+        },
+        {
+          "name": "Actuator Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "info"]
+            },
+            "description": "Returns application version and metadata."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Candidate Intake (ATS / Recruiter)",
+      "item": [
+        {
+          "name": "Submit Candidate & JD Intake",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.assignmentId) {",
+                  "    pm.collectionVariables.set('assignment_id', jsonData.assignmentId);",
+                  "    console.log('Auto-saved assignment_id: ' + jsonData.assignmentId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{integration_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company\": {\n    \"companyId\": \"TECH-GLOBAL-01\",\n    \"name\": \"TechGlobal Systems\",\n    \"domain\": \"Fintech & Payments\"\n  },\n  \"job\": {\n    \"jobId\": \"JOB-BACKEND-SR\",\n    \"title\": \"Senior Java Microservices Engineer\",\n    \"seniority\": \"Senior\",\n    \"requiredSkills\": [\"Java 21\", \"Spring Boot 4\", \"Apache Kafka\", \"MySQL\"]\n  },\n  \"candidate\": {\n    \"candidateId\": \"CAND-9912\",\n    \"fullName\": \"Deepak Pandey\",\n    \"email\": \"deepak@example.com\",\n    \"skills\": [\"Java\", \"Spring Boot\", \"REST APIs\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intake/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intake", "assignments"]
+            },
+            "description": "Ingests a candidate resume + job description. Creates an assignment in status ANALYZING_REQUIREMENTS and kicks off async AI analysis."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Admin Management & Blueprint Generation",
+      "item": [
+        {
+          "name": "Get Assignment Details & Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "assignments", "{{assignment_id}}"]
+            },
+            "description": "Returns current assessment status, competency matrix, and time limit."
+          }
+        },
+        {
+          "name": "Update Assignment Configuration",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"timeLimitHours\": 48,\n  \"difficulty\": \"HARD\",\n  \"allowedTechStacks\": [\"Java 21\", \"Spring Boot 4\"],\n  \"reviewCriteria\": \"SOLID Principles, Clean Code, Unit Test Coverage\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}/configuration",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "assignments", "{{assignment_id}}", "configuration"]
+            },
+            "description": "Recruiter configures time limit, difficulty tier, and review guidelines."
+          }
+        },
+        {
+          "name": "Generate AI Project Blueprint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.blueprintId) {",
+                  "    pm.collectionVariables.set('blueprint_id', jsonData.blueprintId);",
+                  "    console.log('Auto-saved blueprint_id: ' + jsonData.blueprintId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}/blueprints/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "assignments", "{{assignment_id}}", "blueprints", "generate"]
+            },
+            "description": "Triggers Claude LLM to synthesize a unique, zero-plagiarism project blueprint draft."
+          }
+        },
+        {
+          "name": "Approve Project Blueprint",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}/blueprints/{{blueprint_id}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "assignments", "{{assignment_id}}", "blueprints", "{{blueprint_id}}", "approve"]
+            },
+            "description": "Approves blueprint draft and transitions status to AWAITING_GITHUB_USERNAME."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Candidate Flow & Submission Freeze",
+      "item": [
+        {
+          "name": "Submit Candidate GitHub Username",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{candidate_token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{assignment_id}}\",\n  \"githubUsername\": \"deepak-engineer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/candidate/github-username",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "candidate", "github-username"]
+            },
+            "description": "Candidate submits their GitHub username. System provisions private repo and starts 48-hr timer."
+          }
+        },
+        {
+          "name": "Get Candidate Assignment Spec",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{candidate_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/candidate/assignments/{{assignment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "candidate", "assignments", "{{assignment_id}}"]
+            },
+            "description": "Returns candidate view with repo clone URL, countdown remaining, and user stories."
+          }
+        },
+        {
+          "name": "Submit Project (Tamper-Proof Lock)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{candidate_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/candidate/assignments/{{assignment_id}}/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "candidate", "assignments", "{{assignment_id}}", "submit"]
+            },
+            "description": "Executes cryptographic submission freeze: 1. Revoke write access -> 2. Read HEAD commit SHA -> 3. Tag submission-SUB-XXXX."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Evaluation Runner Sandbox Callback",
+      "item": [
+        {
+          "name": "Submit Evaluation Results Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Signature-SHA256", "value": "test-signature-hmac-sha256" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runId\": \"RUN-9821\",\n  \"status\": \"SUCCESS\",\n  \"testsTotal\": 24,\n  \"testsPassed\": 23,\n  \"testsFailed\": 1,\n  \"coveragePercent\": 88.5,\n  \"logs\": \"All unit and integration suites executed in Docker sandbox.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/callbacks/evaluations/{{evaluation_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "callbacks", "evaluations", "{{evaluation_id}}"]
+            },
+            "description": "Posts evaluation results back from isolated Docker sandbox with HMAC-SHA256 signature verification."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Tailored Code MCQ & Anti-Cheat",
+      "item": [
+        {
+          "name": "Fetch Candidate Tailored MCQs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{candidate_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/candidate/assignments/{{assignment_id}}/mcq",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "candidate", "assignments", "{{assignment_id}}", "mcq"]
+            },
+            "description": "Fetches 12-15 questions generated specifically from candidate's actual written code."
+          }
+        },
+        {
+          "name": "Submit MCQ Answers",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{candidate_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignmentId\": \"{{assignment_id}}\",\n  \"answers\": [\n    { \"questionId\": \"MCQ-1\", \"selectedOption\": \"B\" },\n    { \"questionId\": \"MCQ-2\", \"selectedOption\": \"A\" },\n    { \"questionId\": \"MCQ-3\", \"selectedOption\": \"C\" }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/candidate/mcq/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "candidate", "mcq", "submit"]
+            },
+            "description": "Submits candidate answers for 30-minute timed anti-cheat assessment."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Final Executive Hiring Report",
+      "item": [
+        {
+          "name": "Get Final Evaluation Report",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "assignments", "{{assignment_id}}", "report"]
+            },
+            "description": "Returns comprehensive final score breakdown (35% Hidden Tests, 25% AI Quality, 15% Requirements, 25% MCQs) with hiring recommendation."
+          }
+        }
+      ]
+    }
+  ]
+}
