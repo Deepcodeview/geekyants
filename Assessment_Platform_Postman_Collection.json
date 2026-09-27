@@ -70,7 +70,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"role\": \"ADMIN\",\n  \"subject\": \"admin@geekyants.com\"\n}"
+              "raw": "{\n  \"subject\": \"admin@geekyants.com\",\n  \"roles\": [\"ADMIN\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/dev/tokens",
@@ -104,7 +104,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"role\": \"CANDIDATE\",\n  \"subject\": \"deepak@example.com\",\n  \"candidateId\": \"CAND-9912\"\n}"
+              "raw": "{\n  \"subject\": \"deepak@example.com\",\n  \"roles\": [\"CANDIDATE\"],\n  \"candidateId\": \"CAND-9912\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/dev/tokens",
@@ -138,7 +138,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"role\": \"INTEGRATION\",\n  \"subject\": \"workday-ats-sync\"\n}"
+              "raw": "{\n  \"subject\": \"workday-ats-sync\",\n  \"roles\": [\"INTEGRATION\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/dev/tokens",
@@ -257,7 +257,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"timeLimitHours\": 48,\n  \"difficulty\": \"HARD\",\n  \"allowedTechStacks\": [\"Java 21\", \"Spring Boot 4\"],\n  \"reviewCriteria\": \"SOLID Principles, Clean Code, Unit Test Coverage\"\n}"
+              "raw": "{\n  \"domain\": \"Banking\",\n  \"projectType\": \"REST Microservice\",\n  \"complexity\": \"ADVANCED\",\n  \"durationDays\": 7,\n  \"technologies\": [\"Java 21\", \"Spring Boot\", \"MySQL\", \"Kafka\"],\n  \"mandatoryRequirements\": [\"JWT Auth\", \"Transaction Management\"],\n  \"optionalRequirements\": [\"Redis Caching\"],\n  \"notes\": \"Production-grade microservice architecture\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/assignments/{{assignment_id}}/configuration",
