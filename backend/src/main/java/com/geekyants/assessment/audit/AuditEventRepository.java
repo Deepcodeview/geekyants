@@ -7,4 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AuditEventRepository extends JpaRepository<AuditEvent, Long> {
 
     List<AuditEvent> findByAssignmentOrderByCreatedAtAsc(Assignment assignment);
+
+    List<AuditEvent> findTop30ByOrderByCreatedAtDesc();
 }
+

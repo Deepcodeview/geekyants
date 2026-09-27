@@ -19,7 +19,7 @@ import java.time.Instant;
 @Table(name = "submissions")
 public class Submission {
 
-    public enum Trigger { CANDIDATE, DEADLINE }
+    public enum Trigger { CANDIDATE, DEADLINE, ADMIN }
 
     public enum Status { FROZEN }
 

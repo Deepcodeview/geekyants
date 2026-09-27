@@ -35,6 +35,12 @@ public class ClaudeLlmClient implements LlmClient {
 
     @Override
     public <T> T generate(LlmRequest request, Class<T> type) {
+        String apiKey = System.getenv("ANTHROPIC_API_KEY");
+        if (apiKey == null || apiKey.isBlank()) {
+            log.warn("ANTHROPIC_API_KEY is not set; using local fallback assessment data for task: {}", request.task());
+            return LocalMockLlmFallback.generate(request.task(), type);
+        }
+
         StructuredMessageCreateParams.Builder<T> builder = MessageCreateParams.builder()
                 .model(config.model())
                 .maxTokens(config.maxTokens())

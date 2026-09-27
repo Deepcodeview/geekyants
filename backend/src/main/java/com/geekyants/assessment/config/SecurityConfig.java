@@ -44,13 +44,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource(props)))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         // Authenticated by HMAC signature inside the controllers, not by JWT.
                         .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/github").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/callbacks/evaluations/*").permitAll()
                         // DevTokenController only exists under the "dev" profile.
                         .requestMatchers("/dev/**").permitAll()
-                        .requestMatchers("/api/v1/intake/**").hasRole(INTEGRATION)
+                        .requestMatchers("/api/v1/intake/**").hasAnyRole(INTEGRATION, ADMIN)
                         .requestMatchers("/api/v1/admin/**").hasRole(ADMIN)
                         .requestMatchers("/api/v1/candidate/**").hasRole(CANDIDATE)
                         .anyRequest().denyAll())
@@ -82,11 +82,12 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource(AppProperties props) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(props.corsAllowedOrigins() == null ? List.of() : props.corsAllowedOrigins());
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }

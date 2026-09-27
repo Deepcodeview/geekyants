@@ -6,6 +6,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  cache:
+    type: none
+  kafka:
+    enabled: false
 app:
   public-base-url: http://platform.test
   security:

@@ -68,4 +68,81 @@ final class AdminViews {
             RepositoryView repository,
             java.util.List<SubmissionView> submissions) {
     }
+
+    record CandidateAdminView(
+            String candidateId,
+            String fullName,
+            String email,
+            String githubUsername,
+            int assignmentCount,
+            String latestAssignmentStatus,
+            Instant createdAt,
+            JsonNode profile) {
+    }
+
+    record PlatformStatsView(
+            long totalAssignments,
+            long inPipeline,
+            long completed,
+            long failed,
+            long totalCandidates,
+            double averageScore) {
+    }
+
+    record BlueprintModuleView(
+            String blueprintId,
+            String assignmentId,
+            String candidateName,
+            String companyName,
+            int version,
+            String status,
+            String approvedBy,
+            Instant approvedAt,
+            Instant createdAt,
+            String projectName,
+            String domain,
+            int requirementCount,
+            JsonNode content) {
+    }
+
+    record RepositoryModuleView(
+            String repositoryId,
+            String assignmentId,
+            String candidateName,
+            String githubUsername,
+            String fullName,
+            String htmlUrl,
+            String defaultBranch,
+            String status,
+            String candidateAccess,
+            Instant createdAt) {
+    }
+
+    record EvaluationModuleView(
+            String reportId,
+            String assignmentId,
+            String candidateName,
+            String candidateId,
+            String jobTitle,
+            String companyName,
+            Integer overallScore,
+            Integer requirementsScore,
+            Integer automatedEvaluationScore,
+            Integer codeQualityScore,
+            Integer mcqScore,
+            Instant generatedAt,
+            JsonNode content) {
+    }
+
+    record CandidateDetailView(
+            String candidateId,
+            String fullName,
+            String email,
+            String githubUsername,
+            Instant createdAt,
+            JsonNode profile,
+            java.util.List<AssignmentSummary> assignments) {
+    }
 }
+
+

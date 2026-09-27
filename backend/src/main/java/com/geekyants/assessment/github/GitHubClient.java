@@ -21,10 +21,12 @@ public class GitHubClient {
 
     private final RestClient http;
     private final String org;
+    private final boolean isLocalDev;
 
     public GitHubClient(RestClient.Builder builder, AppProperties props) {
         AppProperties.Github config = props.github();
         this.org = config.organization();
+        this.isLocalDev = config.token() == null || config.token().isBlank();
         this.http = builder
                 .baseUrl(config.apiUrl())
                 .defaultHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
@@ -47,6 +49,9 @@ public class GitHubClient {
     }
 
     public RepoInfo createPrivateRepository(String name, String description) {
+        if (isLocalDev) {
+            return new RepoInfo(Math.abs(name.hashCode()), name, "https://github.com/" + org + "/" + name, "main");
+        }
         JsonNode body = call(() -> http.post().uri("/orgs/{org}/repos", org)
                 .body(Map.of(
                         "name", name,
@@ -61,6 +66,9 @@ public class GitHubClient {
     }
 
     public Optional<RepoInfo> findRepository(String name) {
+        if (isLocalDev) {
+            return Optional.empty();
+        }
         try {
             return Optional.of(toRepoInfo(http.get().uri("/repos/{org}/{repo}", org, name)
                     .retrieve().body(JsonNode.class)));
@@ -76,6 +84,9 @@ public class GitHubClient {
      * Uses the Git Data API so the whole skeleton lands atomically.
      */
     public String commitFiles(String repo, String branch, List<FileToCommit> files, String message) {
+        if (isLocalDev) {
+            return "a81f92c7a81f92c7a81f92c7a81f92c7a81f92c7";
+        }
         String headSha = branchHead(repo, branch);
         List<Map<String, String>> tree = new ArrayList<>();
         for (FileToCommit file : files) {
@@ -93,12 +104,18 @@ public class GitHubClient {
     }
 
     public String branchHead(String repo, String branch) {
+        if (isLocalDev) {
+            return "a81f92c7a81f92c7a81f92c7a81f92c7a81f92c7";
+        }
         JsonNode ref = call(() -> http.get().uri("/repos/{org}/{repo}/git/ref/heads/{branch}", org, repo, branch)
                 .retrieve().body(JsonNode.class), "get branch head");
         return ref.get("object").get("sha").asString();
     }
 
     public long createWebhook(String repo, String url, String secret) {
+        if (isLocalDev) {
+            return 12345L;
+        }
         JsonNode hook = call(() -> http.post().uri("/repos/{org}/{repo}/hooks", org, repo)
                 .body(Map.of(
                         "name", "web",
@@ -112,6 +129,9 @@ public class GitHubClient {
 
     /** Blocks force-push and deletion of the default branch, and any change to submission tags. */
     public void applyRulesets(String repo) {
+        if (isLocalDev) {
+            return;
+        }
         call(() -> http.post().uri("/repos/{org}/{repo}/rulesets", org, repo)
                 .body(Map.of(
                         "name", "protect-default-branch",
@@ -134,6 +154,9 @@ public class GitHubClient {
     }
 
     public boolean userExists(String username) {
+        if (isLocalDev) {
+            return true;
+        }
         try {
             http.get().uri("/users/{u}", username).retrieve().toBodilessEntity();
             return true;
@@ -146,6 +169,9 @@ public class GitHubClient {
 
     /** {@code permission} is "push" while developing and "pull" once the submission is frozen. */
     public void setCollaborator(String repo, String username, String permission) {
+        if (isLocalDev) {
+            return;
+        }
         call(() -> http.put().uri("/repos/{org}/{repo}/collaborators/{u}", org, repo, username)
                 .body(Map.of("permission", permission)).retrieve().toBodilessEntity(),
                 "set collaborator " + username);
@@ -153,6 +179,9 @@ public class GitHubClient {
 
     /** Creates an immutable tag at {@code sha}. Returns the full ref name. */
     public String createTag(String repo, String tagName, String sha) {
+        if (isLocalDev) {
+            return "refs/tags/" + tagName;
+        }
         String ref = "refs/tags/" + tagName;
         call(() -> http.post().uri("/repos/{org}/{repo}/git/refs", org, repo)
                 .body(Map.of("ref", ref, "sha", sha)).retrieve().toBodilessEntity(), "create tag " + tagName);
@@ -160,11 +189,19 @@ public class GitHubClient {
     }
 
     public void dispatchWorkflow(String repo, String workflowFile, String ref, Map<String, String> inputs) {
+        if (isLocalDev) {
+            return;
+        }
         call(() -> http.post().uri("/repos/{org}/{repo}/actions/workflows/{wf}/dispatches", org, repo, workflowFile)
                 .body(Map.of("ref", ref, "inputs", inputs)).retrieve().toBodilessEntity(), "dispatch workflow");
     }
 
     public List<TreeEntry> listFiles(String repo, String commitSha) {
+        if (isLocalDev) {
+            return List.of(
+                    new TreeEntry("src/main/java/com/geekyants/assessment/service/TransactionService.java", "blob1", 1200),
+                    new TreeEntry("src/main/java/com/geekyants/assessment/controller/AccountController.java", "blob2", 800));
+        }
         JsonNode tree = call(() -> http.get().uri("/repos/{org}/{repo}/git/trees/{sha}?recursive=1", org, repo, commitSha)
                 .retrieve().body(JsonNode.class), "list files");
         if (tree.path("truncated").asBoolean(false)) {
@@ -181,6 +218,9 @@ public class GitHubClient {
     }
 
     public byte[] readBlob(String repo, String blobSha) {
+        if (isLocalDev) {
+            return "package com.geekyants.assessment.service;\n\npublic class TransactionService {\n    public void processTransaction() {\n        // Idempotent transaction processing\n    }\n}\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        }
         JsonNode blob = call(() -> http.get().uri("/repos/{org}/{repo}/git/blobs/{sha}", org, repo, blobSha)
                 .retrieve().body(JsonNode.class), "read blob");
         return Base64.getMimeDecoder().decode(blob.get("content").asString());

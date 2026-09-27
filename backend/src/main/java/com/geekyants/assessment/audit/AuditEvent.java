@@ -61,4 +61,12 @@ public class AuditEvent {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Assignment getAssignment() {
+        return assignment;
+    }
 }

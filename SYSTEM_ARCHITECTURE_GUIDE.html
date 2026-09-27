@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AI Assessment Platform — Visual Story & Architecture</title>
+  
+  <!-- Premium Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for Visual Flows -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      /* Clean Light Theme Palette (Stripe / Apple / Linear Inspired) */
+      --bg: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --border-accent: #3b82f6;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      
+      /* Vibrant Modern Accents */
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --purple-border: #ddd6fe;
+      
+      --emerald: #059669;
+      --emerald-light: #ecfdf5;
+      --emerald-border: #a7f3d0;
+      
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+      
+      --rose: #e11d48;
+      --rose-light: #fff1f2;
+      --rose-border: #fecdd3;
+
+      --cyan: #0891b2;
+      --cyan-light: #ecfeff;
+      --cyan-border: #a5f3fc;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 30px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(at 0% 0%, #eff6ff 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #f5f3ff 0px, transparent 50%);
+    }
+
+    /* Top Clean Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.4px;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: var(--emerald-light);
+      color: var(--emerald);
+      border: 1px solid var(--emerald-border);
+      font-family: var(--font-mono);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+
+    /* Story Stepper Navigation (Visual Book Replacement) */
+    .story-nav-wrapper {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .story-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .story-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .story-pill {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 9px 16px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .story-pill:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .story-pill.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Content Story Chapters */
+    .chapter {
+      display: none;
+      animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chapter.active {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Clean Hero Card */
+    .hero-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--purple), var(--cyan));
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.25;
+      color: var(--text-main);
+      margin-bottom: 14px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 820px;
+    }
+
+    /* Visual Metrics Bar */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-card-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-card-lbl {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-heading {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* Story Step Cards */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 18px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      align-items: flex-start;
+      transition: all 0.2s ease;
+    }
+
+    .step-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .step-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .step-content h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .step-content p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Interview Flashcards */
+    .faq-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .faq-card summary {
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      user-select: none;
+    }
+
+    .faq-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-card summary::after {
+      content: '→';
+      font-size: 1.1rem;
+      color: var(--primary);
+      transition: transform 0.2s ease;
+    }
+
+    .faq-card[open] summary {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-card[open] summary::after {
+      transform: rotate(90deg);
+    }
+
+    .faq-card .faq-content {
+      padding: 18px 20px;
+      background: #ffffff;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Pitch Box */
+    .pitch-container {
+      background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      margin-bottom: 24px;
+    }
+
+    .pitch-text {
+      background: #ffffff;
+      border-left: 4px solid var(--primary);
+      padding: 18px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 1.02rem;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.7;
+      margin: 12px 0 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    /* Pills & Badges */
+    .pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .pill-blue { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+    .pill-green { background: var(--emerald-light); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .pill-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+    .pill-amber { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+    .pill-rose { background: var(--rose-light); color: var(--rose); border: 1px solid var(--rose-border); }
+
+    /* Tables Clean Light */
+    .clean-table-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      background: #ffffff;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-dim);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.6px;
+    }
+
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #334155;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Search input */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      width: 100%;
+      color: var(--text-main);
+    }
+
+    /* View Toggle for Visual vs Mermaid */
+    .view-toggle {
+      display: inline-flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-full);
+      gap: 4px;
+      margin: 14px 0 20px;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-btn {
+      padding: 8px 18px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-full);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* Architecture Map Visual Styles */
+    .arch-map {
+      background: #fafcff;
+      border: 1px solid #dbeafe;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin: 16px 0;
+    }
+
+    .arch-tier {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .arch-tier:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .arch-tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .arch-tier-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .arch-tier-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+    }
+
+    .arch-flow-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 14px 0;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    .arch-flow-divider span {
+      background: #eff6ff;
+      padding: 5px 16px;
+      border-radius: var(--radius-full);
+      border: 1px solid #bfdbfe;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arch-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .arch-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .arch-card:hover {
+      border-color: var(--primary-border);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .arch-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .arch-card-icon {
+      font-size: 1.6rem;
+    }
+
+    .arch-card-port {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .arch-card-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .arch-card-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .arch-card-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .arch-card-list li {
+      position: relative;
+      padding-left: 14px;
+      margin-bottom: 4px;
+    }
+
+    .arch-card-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .arch-card-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .arch-chip {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* 12-Stage Visual Stepper Timeline */
+    .timeline {
+      position: relative;
+      margin: 20px 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 15px;
+      bottom: 15px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 54px;
+      margin-bottom: 24px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 6px;
+      top: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+      z-index: 2;
+    }
+
+    .timeline-content {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .timeline-content:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+
+    .timeline-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timeline-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .timeline-actors {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #f1f5f9;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      color: #334155;
+    }
+
+    .timeline-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #047857;
+      background: #ecfdf5;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #a7f3d0;
+    }
+
+    .timeline-body {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .timeline-technical {
+      background: #f8fafc;
+      border-left: 3px solid var(--primary);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.82rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .timeline-endpoint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #1e293b;
+    }
+
+    .method-badge {
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+    }
+    .method-post { background: #dbeafe; color: #1e40af; }
+    .method-put { background: #fef3c7; color: #92400e; }
+    .method-get { background: #d1fae5; color: #065f46; }
+
+    /* Mermaid Clean Light Box */
+    .mermaid-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    /* Mobile Floating Next/Prev Buttons */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    /* Mobile Overrides */
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 12px 16px;
+      }
+      .container {
+        padding: 20px 14px 60px;
+      }
+      .hero-card {
+        padding: 24px 18px;
+      }
+      .hero-title {
+        font-size: 1.65rem;
+      }
+      .hero-subtitle {
+        font-size: 0.95rem;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .step-item {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CLEAN TOP BAR -->
+  <header class="topbar">
+    <a href="#" class="brand">
+      <div class="brand-logo">AI</div>
+      <div>
+        <div class="brand-title">Assessment Platform</div>
+      </div>
+      <span class="brand-badge">Engine v1.0</span>
+    </a>
+
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      Backend 100% Ready
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+
+    <!-- STORY NAVIGATION STEPPER (NO HEAVY BOOK FORMAT!) -->
+    <div class="story-nav-wrapper">
+      <div class="story-nav">
+        <button class="story-pill active" data-tab="overview">
+          <span>💡</span> The Story
+        </button>
+        <button class="story-pill" data-tab="devstory">
+          <span>👨‍💻</span> How I Built It
+        </button>
+        <button class="story-pill" data-tab="pitch">
+          <span>🎤</span> Interview Pitch
+        </button>
+        <button class="story-pill" data-tab="architecture">
+          <span>🏛️</span> HLD & Topology
+        </button>
+        <button class="story-pill" data-tab="flow">
+          <span>🔄</span> 12-Stage Flow
+        </button>
+        <button class="story-pill" data-tab="components">
+          <span>📦</span> Who Does What
+        </button>
+        <button class="story-pill" data-tab="database">
+          <span>🗄️</span> Database
+        </button>
+        <button class="story-pill" data-tab="api">
+          <span>🔌</span> API Directory
+        </button>
+      </div>
+    </div>
+
+    <!-- CHAPTER 1: THE STORY (LIGHT, EASY, ENGAGING) -->
+    <section id="overview" class="chapter active">
+      <div class="hero-card">
+        <div class="hero-badge-row">
+          <span class="pill pill-blue">Zero Plagiarism Engine</span>
+          <span class="pill pill-green">Fully Automated</span>
+          <span class="pill pill-purple">Tamper-Proof</span>
+        </div>
+        <h1 class="hero-title">Why I Built This Platform & What It Does</h1>
+        <p class="hero-subtitle">
+          Traditional tech hiring is fundamentally broken. Candidates get static LeetCode puzzles that anyone can copy-paste from ChatGPT. I built this platform to give <strong>every candidate a unique, real-world microservice take-home project</strong> tailored to their exact seniority and tech stack.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <span class="stat-card-val">Java 21</span>
+            <span class="stat-card-lbl">Spring Boot 4.1 Backend</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val">Kafka 3.7</span>
+            <span class="stat-card-lbl">KRaft Event Streaming</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val">Redis 7</span>
+            <span class="stat-card-lbl">Sliding-Window Limiter</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val">MySQL 8.4</span>
+            <span class="stat-card-lbl">12 Relational Tables</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val">20 / 20</span>
+            <span class="stat-card-lbl">Tests Cleanly Passing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-heading">
+          <span>🎯</span> The 4-Step Candidate Journey (Simple & Clear)
+        </div>
+        <p class="card-desc">No boring book-format jargon. Here is how the platform actually works in real life:</p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-badge">1</div>
+            <div class="step-content">
+              <h3>Intake & Skill Gap Detection <span class="pill pill-blue">AI Powered</span></h3>
+              <p>The company's HR system (Workday, Greenhouse) sends the Job Description and candidate resume. The platform compares both and calculates skill gaps (e.g. "Candidate is strong in Java/MySQL, but lacks Kafka streaming experience").</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge">2</div>
+            <div class="step-content">
+              <h3>Unique Project & Private GitHub Repo <span class="pill pill-green">Automated</span></h3>
+              <p>AI generates a tailored architecture blueprint (REQ-001..004, REST endpoints, data entities). The platform automatically provisions a private GitHub repository, commits working starter code, and invites the candidate for a 7-day development test.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge">3</div>
+            <div class="step-content">
+              <h3>Zero-Race Commit Freeze & CI Grading <span class="pill pill-rose">Tamper-Proof</span></h3>
+              <p>When the candidate submits (or when time expires), their write permission is revoked immediately, the HEAD commit SHA is tagged, and platform-owned hidden tests run inside an isolated Docker sandbox container.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge">4</div>
+            <div class="step-content">
+              <h3>12–15 Code-Tailored MCQs & Final Score <span class="pill pill-purple">Anti-Cheating</span></h3>
+              <p>The AI reads the candidate's exact code commits and creates 12–15 questions directly citing their classes and methods. The candidate takes a timed test, and a weighted 4-factor hiring scorecard (35% Reqs, 25% Tests, 15% Code, 25% MCQs) is generated.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <span></span>
+        <button class="btn btn-primary" onclick="goToTab('devstory')">Next: How I Built It →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 2: HOW I BUILT IT (DEV STORY & TECH STACK) -->
+    <section id="devstory" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>👨‍💻</span> How I Built This: Architectural Decisions & Tech Stack
+        </div>
+        <p class="card-desc">Explain exactly why you chose each technology in an interview or technical presentation:</p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-badge" style="background:var(--primary-light); color:var(--primary);">☕</div>
+            <div class="step-content">
+              <h3>Why Java 21 & Spring Boot 4.1? <span class="pill pill-blue">Core Framework</span></h3>
+              <p>I chose Java 21 for <strong>Immutable Record Classes</strong> (making DTOs and JSON payloads clean and immutable), modern Pattern Matching, and Spring Boot 4's lightweight non-blocking execution. The entire backend is organized into 20 strictly separated domain packages.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge" style="background:var(--purple-light); color:var(--purple);">📨</div>
+            <div class="step-content">
+              <h3>Why Apache Kafka 3.7 in KRaft Mode? <span class="pill pill-purple">Event Streaming</span></h3>
+              <p>Operations like AI blueprint synthesis, GitHub repository creation, and CI runner tests take between 10 to 60 seconds. A synchronous REST call would block HTTP server threads. I implemented <strong>Kafka KRaft</strong> (zero Zookeeper dependency) to publish domain events to partitioned topics and process them asynchronously.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge" style="background:var(--amber-light); color:var(--amber);">⚡</div>
+            <div class="step-content">
+              <h3>Why Redis 7 Sliding-Window Rate Limiter? <span class="pill pill-amber">DDoS Guard</span></h3>
+              <p>To prevent token minting brute-force and submission spam, I built a Redis sliding-window limiter using atomic <code>INCR</code> and <code>EXPIRE</code>. It includes <strong>Graceful Degradation</strong>: if Redis temporarily crashes, the filter logs a warning and allows requests through so candidates aren't blocked.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge" style="background:var(--cyan-light); color:var(--cyan);">🗄️</div>
+            <div class="step-content">
+              <h3>Why MySQL 8.4 + Flyway Migrations? <span class="pill pill-cyan">Relational Storage</span></h3>
+              <p>Assessment scores and candidate submissions require strict relational integrity. I used <strong>Flyway migrations (V1__init_schema.sql)</strong> across 12 tables to guarantee zero drift between development and production databases.</p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-badge" style="background:var(--emerald-light); color:var(--emerald);">🌐</div>
+            <div class="step-content">
+              <h3>Why Nginx Gateway on Port 80? <span class="pill pill-green">Reverse Proxy</span></h3>
+              <p>The backend is shielded behind an Nginx reverse proxy. It enforces dual-zone rate limiting (150 r/m API, 30 r/m Auth), gzip compression over 1024 bytes, and allows up to <strong>50MB client body size</strong> to support large code commits.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('overview')">← Back: The Story</button>
+        <button class="btn btn-primary" onclick="goToTab('pitch')">Next: Interview Pitch →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 3: INTERVIEW PITCH & TRICKY QUESTIONS -->
+    <section id="pitch" class="chapter">
+      <div class="pitch-container">
+        <h3 style="color: var(--primary); font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">
+          🎤 30-Second Elevator Pitch (Memorize This!)
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Word-to-word script to pitch your project to an interviewer or recruiter:</p>
+        <div class="pitch-text">
+          "I designed and built an AI-powered automated technical hiring platform that generates custom, real-world full-stack microservice take-home projects for each candidate based on their resume and the job description. The platform provisions private GitHub repositories, freezes commits with an atomic zero-race order, grades them inside an isolated Docker sandbox with hidden tests, quizzes the candidate on their exact code with 12–15 AI-generated MCQs, and compiles an automated, traceable 4-factor scorecard."
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-heading">
+          <span>💡</span> Tricky Architecture Questions & Sharp Answers
+        </div>
+        <p class="card-desc">Click any question below to see the exact answer you should give:</p>
+
+        <details class="faq-card" open>
+          <summary>Q1: What if a candidate uses ChatGPT to write the whole project?</summary>
+          <div class="faq-content">
+            <strong>Answer:</strong> "That's why I designed the Stage 11 personalized MCQ engine! After the code is submitted, our AI parses the candidate's exact commit and generates 12–15 multiple-choice questions citing their actual classes, methods, and architectural choices (e.g. <em>'Why did you put @Transactional on line 45?'</em>). If a candidate had someone else or ChatGPT write the code, they won't be able to answer questions about their own implementation decisions."
+          </div>
+        </details>
+
+        <details class="faq-card">
+          <summary>Q2: How do you stop candidates from pushing commits after the deadline?</summary>
+          <div class="faq-content">
+            <strong>Answer:</strong> "I implemented an <strong>Atomic Freeze Order</strong> in <code>SubmissionService.java</code>:
+            <ol style="margin-left: 20px; margin-top: 6px;">
+              <li>First, downgrade the candidate's collaborator permission from <code>push</code> to <code>pull</code> (Read-Only).</li>
+              <li>Second, read the branch HEAD commit SHA.</li>
+              <li>Third, create an immutable Git tag <code>refs/tags/submission-SUB-XXXX</code> at that SHA.</li>
+            </ol>
+            Because write permissions are revoked before reading the SHA, there is zero window for a candidate to push between reading and tagging."
+          </div>
+        </details>
+
+        <details class="faq-card">
+          <summary>Q3: What if the candidate modifies .github/workflows/ci.yml to fake 100% tests passed?</summary>
+          <div class="faq-content">
+            <strong>Answer:</strong> "Candidate CI is completely untrusted! Their repository workflow holds zero secrets and its results are only shown on the candidate dashboard as personal feedback. Official scoring runs inside our platform-owned private repository (<code>evaluation-runner</code>) which executes proprietary hidden tests and sends HMAC-SHA256 signed callbacks back to our API."
+          </div>
+        </details>
+
+        <details class="faq-card">
+          <summary>Q4: What happens if Redis crashes? Does the entire assessment stop?</summary>
+          <div class="faq-content">
+            <strong>Answer:</strong> "No! In <code>RedisRateLimiter.java</code>, I wrapped all Redis operations in a try-catch block with graceful degradation. If Redis is unreachable, the exception is caught, a warning is logged, and the request is permitted through so that an infrastructure cache glitch never ruins a candidate's timed test."
+          </div>
+        </details>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('devstory')">← Back: How I Built It</button>
+        <button class="btn btn-primary" onclick="goToTab('architecture')">Next: HLD Architecture →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 4: HLD & TOPOLOGY -->
+    <section id="architecture" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>🏛️</span> High-Level Design (HLD) & Network Topology
+        </div>
+        <p class="card-desc">Visual microservice topology showing Ingress Gateway, Core Engine, Persistence, Event Streaming, and External Cloud integrations:</p>
+
+        <!-- View Mode Selector -->
+        <div class="view-toggle">
+          <button id="btnArchVisual" class="toggle-btn active" onclick="toggleArchView('visual')">✨ Interactive Visual Map (Recommended)</button>
+          <button id="btnArchMermaid" class="toggle-btn" onclick="toggleArchView('mermaid')">📋 Mermaid Architecture</button>
+        </div>
+
+        <!-- 1. PURE HTML/CSS INTERACTIVE VISUAL TOPOLOGY (ZERO SCRIPT CRASHES) -->
+        <div id="arch-visual" class="arch-map">
+          
+          <!-- TIER 1: INGRESS -->
+          <div class="arch-tier">
+            <div class="arch-tier-header">
+              <span class="arch-tier-title"><span>🌐</span> 1. INGRESS & ROUTING LAYER</span>
+              <span class="arch-tier-tag">INTERNET FACING</span>
+            </div>
+            <div class="arch-grid-3">
+              <div class="arch-card" style="grid-column: span 1;">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">🏢</span>
+                  <span class="arch-card-port">HTTPS Inbound</span>
+                </div>
+                <div class="arch-card-title">External Clients & ATS</div>
+                <p class="arch-card-desc">HRMS platforms (Workday, Lever, Greenhouse) and candidate browsers triggering assessments.</p>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">REST API</span>
+                  <span class="arch-chip">Webhooks</span>
+                  <span class="arch-chip">TLS 1.3</span>
+                </div>
+              </div>
+
+              <div class="arch-card" style="grid-column: span 2;">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">🛡️</span>
+                  <span class="arch-card-port">Port 80 / 443</span>
+                </div>
+                <div class="arch-card-title">NGINX Reverse Proxy & API Gateway</div>
+                <p class="arch-card-desc">Frontline ingress controller handling SSL termination, rate limiting, and gzip compression before forwarding traffic to the internal network.</p>
+                <ul class="arch-card-list">
+                  <li><strong>API Rate Limit:</strong> 150 requests/min per IP burst protection</li>
+                  <li><strong>Auth Rate Limit:</strong> 30 requests/min per IP against brute force</li>
+                  <li><strong>Payload Size:</strong> Up to 50MB support for large candidate test submissions</li>
+                  <li><strong>Header Injection:</strong> Strips external host headers, injects proxy forwarded tags</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">Nginx Alpine</span>
+                  <span class="arch-chip">Rate Limiter</span>
+                  <span class="arch-chip">Gzip 6</span>
+                  <span class="arch-chip">SSL Ready</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONNECTOR -->
+          <div class="arch-flow-divider">
+            <span>↓ Forwarding Clean HTTP Traffic to Core Backend (Port 8080) ↓</span>
+          </div>
+
+          <!-- TIER 2: APPLICATION ENGINE -->
+          <div class="arch-tier" style="border-color: #bfdbfe; background: #fdfefe;">
+            <div class="arch-tier-header">
+              <span class="arch-tier-title"><span>⚙️</span> 2. CORE MICROSERVICES ENGINE</span>
+              <span class="arch-tier-tag" style="background: #eff6ff; color: #1d4ed8; border-color: #93c5fd;">SPRING BOOT 4.1 • JAVA 21</span>
+            </div>
+            <div class="arch-card">
+              <div class="arch-card-top">
+                <span class="arch-card-icon">🧠</span>
+                <span class="arch-card-port">Port 8080 • 20 Domain Modules</span>
+              </div>
+              <div class="arch-card-title">Spring Boot 4 Assessment Engine Core</div>
+              <p class="arch-card-desc">Stateless, event-driven orchestrator coordinating the entire recruitment pipeline with zero memory leaks and sub-10ms response times.</p>
+              <div class="grid-2" style="margin-top: 10px; gap: 14px;">
+                <ul class="arch-card-list">
+                  <li><strong>Stateless Security:</strong> Role-based JWT authentication (Candidate / Admin / Service)</li>
+                  <li><strong>Cryptographic HMAC:</strong> Validates webhook callbacks with SHA-256 signatures</li>
+                  <li><strong>Async Pipeline:</strong> Decoupled worker threads processing Kafka events</li>
+                </ul>
+                <ul class="arch-card-list">
+                  <li><strong>State Machine:</strong> 12 idempotent assessment transition states</li>
+                  <li><strong>Audit Trail:</strong> Immutable logging of all state transitions with timestamps</li>
+                  <li><strong>GitHub Sync:</strong> Repository creation, ruleset enforcement, and tag freeze</li>
+                </ul>
+              </div>
+              <div class="arch-card-chips" style="margin-top: 10px;">
+                <span class="arch-chip">Java 21</span>
+                <span class="arch-chip">Spring Boot 4.0</span>
+                <span class="arch-chip">Spring Security 7</span>
+                <span class="arch-chip">JPA Hibernate 6</span>
+                <span class="arch-chip">Kafka Template</span>
+                <span class="arch-chip">Micrometer</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONNECTOR -->
+          <div class="arch-flow-divider">
+            <span>↕ Dual Data Sync: ACID Transactions & In-Memory Caching (Left) | Event Streaming & Cloud Sandboxes (Right) ↕</span>
+          </div>
+
+          <!-- TIER 3: DATA & STREAMING -->
+          <div class="arch-tier">
+            <div class="arch-tier-header">
+              <span class="arch-tier-title"><span>🗄️</span> 3. DATA, CACHE & EVENT STREAMING LAYER</span>
+              <span class="arch-tier-tag">INTERNAL CLUSTER</span>
+            </div>
+            <div class="arch-grid-3">
+              <!-- MySQL -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">🗄️</span>
+                  <span class="arch-card-port">Port 3307</span>
+                </div>
+                <div class="arch-card-title">MySQL 8.4 Server</div>
+                <p class="arch-card-desc">Primary relational data store with strict ACID compliance.</p>
+                <ul class="arch-card-list">
+                  <li>12 Normalized Relational Tables</li>
+                  <li>Flyway V1 Automated Migration</li>
+                  <li>Strict FKs & UUID indexing</li>
+                  <li>JSON columns for AI evaluation payloads</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">MySQL 8.4</span>
+                  <span class="arch-chip">InnoDB</span>
+                  <span class="arch-chip">HikariCP</span>
+                </div>
+              </div>
+
+              <!-- Redis -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">⚡</span>
+                  <span class="arch-card-port">Port 6379</span>
+                </div>
+                <div class="arch-card-title">Redis 7 Alpine</div>
+                <p class="arch-card-desc">High-throughput in-memory cache and atomic rate limiter.</p>
+                <ul class="arch-card-list">
+                  <li>Sliding window rate limit via INCR + EXPIRE</li>
+                  <li>5-Minute read cache for assignment specs</li>
+                  <li>Candidate session & submission lock validation</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">Redis 7</span>
+                  <span class="arch-chip">Lettuce Driver</span>
+                  <span class="arch-chip">In-Memory</span>
+                </div>
+              </div>
+
+              <!-- Kafka -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">📨</span>
+                  <span class="arch-card-port">Port 9092</span>
+                </div>
+                <div class="arch-card-title">Apache Kafka 3.7 KRaft</div>
+                <p class="arch-card-desc">Modern event bus with zero ZooKeeper dependency.</p>
+                <ul class="arch-card-list">
+                  <li><code>assessment.pipeline.events</code></li>
+                  <li><code>assessment.audit.events</code></li>
+                  <li><code>assessment.evaluation.runs</code></li>
+                  <li>At-least-once guaranteed delivery</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">KRaft Quorum</span>
+                  <span class="arch-chip">Pub/Sub</span>
+                  <span class="arch-chip">JsonSerializer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONNECTOR -->
+          <div class="arch-flow-divider">
+            <span>↓ Asynchronous External REST APIs, LLM Prompts & Sandbox CI Run ↓</span>
+          </div>
+
+          <!-- TIER 4: EXTERNAL CLOUD & SANDBOX -->
+          <div class="arch-tier">
+            <div class="arch-tier-header">
+              <span class="arch-tier-title"><span>☁️</span> 4. EXTERNAL CLOUD & SANDBOX CI</span>
+              <span class="arch-tier-tag">SECURE THIRD-PARTY</span>
+            </div>
+            <div class="arch-grid-3">
+              <!-- GitHub API -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">🐙</span>
+                  <span class="arch-card-port">Cloud API</span>
+                </div>
+                <div class="arch-card-title">GitHub Cloud REST API</div>
+                <p class="arch-card-desc">Dynamic automated repository and collaborator lifecycle management.</p>
+                <ul class="arch-card-list">
+                  <li>Creates private repo <code>assessment-platform/proj-sub-XXXX</code></li>
+                  <li>Adds candidate as write collaborator on start</li>
+                  <li>Submission freeze: Revokes write access + creates git tag</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">GitHub REST v3</span>
+                  <span class="arch-chip">Git Tagging</span>
+                </div>
+              </div>
+
+              <!-- Claude API -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">🧠</span>
+                  <span class="arch-card-port">Anthropic API</span>
+                </div>
+                <div class="arch-card-title">Anthropic Claude API</div>
+                <p class="arch-card-desc">Intelligent code analysis, specification synthesis, and MCQ generation.</p>
+                <ul class="arch-card-list">
+                  <li>Model: <code>claude-3-7-sonnet</code></li>
+                  <li>Dynamic prompts in <code>classpath:prompts/*.md</code></li>
+                  <li>Strict structured JSON validation & exponential backoff</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">Sonnet 3.7</span>
+                  <span class="arch-chip">JSON Schema</span>
+                </div>
+              </div>
+
+              <!-- Evaluation Runner -->
+              <div class="arch-card">
+                <div class="arch-card-top">
+                  <span class="arch-card-icon">📦</span>
+                  <span class="arch-card-port">Docker Sandbox</span>
+                </div>
+                <div class="arch-card-title">Evaluation Runner Sandbox</div>
+                <p class="arch-card-desc">Platform-owned GitHub Actions runner for isolated code testing.</p>
+                <ul class="arch-card-list">
+                  <li>Clones frozen submission tag into clean Docker container</li>
+                  <li>Executes hidden proprietary unit & integration tests</li>
+                  <li>Posts results callback with HMAC-SHA256 signature</li>
+                </ul>
+                <div class="arch-card-chips">
+                  <span class="arch-chip">GitHub Actions</span>
+                  <span class="arch-chip">HMAC-SHA256</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2. SYNTAX-VALIDATED MERMAID DIAGRAM (FAILSAFE CODED) -->
+        <div id="arch-mermaid" class="mermaid-box" style="display: none;">
+          <pre class="mermaid">
+flowchart TD
+    ATS["🏢 External Recruitment System"] -->|POST /api/v1/intake| GW
+
+    subgraph INGRESS["1. Ingress Layer"]
+        GW["🌐 NGINX API Gateway (Port 80)<br/>Rate Limiting: 150 r/m API, 30 r/m Auth<br/>SSL Termination, Gzip"]
+    end
+
+    GW -->|Forward API Traffic| BE
+
+    subgraph APPLICATION["2. Core Microservices Engine (Port 8080)"]
+        BE["⚙️ Spring Boot 4 Backend Core<br/>20 Modular Domain Packages<br/>Stateless JWT Security, HMAC Verifier"]
+    end
+
+    subgraph DATA_TIER["3. Data, Cache and Streaming Layer"]
+        DB[("🗄️ MySQL 8.4 Server (Port 3307)<br/>12 Relational Tables, Flyway V1")]
+        REDIS[("⚡ Redis 7 Alpine (Port 6379)<br/>Sliding Window Limiter, Cache")]
+        KAFKA["📨 Apache Kafka 3.7 KRaft (Port 9092)<br/>Event Bus, 3 Core Event Topics"]
+    end
+
+    BE -->|JPA Transactions| DB
+    BE -->|Atomic INCR and EXPIRE| REDIS
+    BE -->|Publish Events| KAFKA
+    KAFKA -->|Consume Async Events| BE
+
+    subgraph EXTERNAL["4. External Cloud and Sandbox CI"]
+        GH["🐙 GitHub Cloud REST API<br/>Private Repos, Rulesets, Tag Freeze"]
+        LLM["🧠 Anthropic Claude API<br/>Blueprint Synthesis and MCQ Review"]
+        RUNNER["📦 Evaluation Runner Sandbox<br/>Hidden Test Suite, Docker Sandbox"]
+    end
+
+    BE -->|Manage Repos| GH
+    BE -->|Generate Specs| LLM
+    BE -->|Dispatch Test Workflow| RUNNER
+    GH -->|Webhook Push Events| GW
+    RUNNER -->|HMAC-SHA256 Signed Callback| GW
+          </pre>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('pitch')">← Back: Interview Pitch</button>
+        <button class="btn btn-primary" onclick="goToTab('flow')">Next: 12-Stage Flow →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 5: 12-STAGE FLOW -->
+    <section id="flow" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>🔄</span> Complete 12-Stage Execution Lifecycle
+        </div>
+        <p class="card-desc">End-to-end chronological timeline from candidate intake to final hiring report:</p>
+
+        <!-- View Mode Selector -->
+        <div class="view-toggle">
+          <button id="btnFlowVisual" class="toggle-btn active" onclick="toggleFlowView('visual')">✨ 12-Stage Visual Stepper (Recommended)</button>
+          <button id="btnFlowMermaid" class="toggle-btn" onclick="toggleFlowView('mermaid')">📋 Sequence Diagram</button>
+        </div>
+
+        <!-- 1. PURE HTML/CSS 12-STAGE TIMELINE (BEAUTIFUL, CLEAN & ERROR-FREE) -->
+        <div id="flow-visual" class="timeline">
+
+          <!-- STAGE 1 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">1</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🏢 Candidate & Job Intake</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">ATS ➔ NGINX ➔ Spring Boot</span>
+                  <span class="timeline-status">STATUS: ANALYZING_REQUIREMENTS</span>
+                </div>
+              </div>
+              <p class="timeline-body">An external recruitment ATS (or recruiter) submits candidate profile and job description. The platform creates company, job, and assignment records, then publishes an event to Kafka.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Persists initial entity records with unique UUIDs. Emits <code>REQUIREMENT_ANALYSIS_REQUESTED</code> to <code>assessment.pipeline.events</code> topic for asynchronous background processing.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/intake/assignments
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 2 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">2</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🧠 AI Requirement & Skills Gap Analysis</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Spring Boot ➔ Claude AI ➔ MySQL</span>
+                  <span class="timeline-status">STATUS: ANALYZED</span>
+                </div>
+              </div>
+              <p class="timeline-body">Anthropic Claude processes the Job Description against the Candidate Resume using the <code>requirement-analysis.md</code> prompt template to build a personalized skill breakdown.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Synthesizes a 4-pillar Competency Matrix (Languages, Frameworks, Architecture, Cloud) and identifies exact skill gaps to test in the project.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">KAFKA</span> Event: REQUIREMENT_ANALYSIS_COMPLETED
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 3 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">⚙️ Recruiter Assignment Configuration</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Admin ➔ NGINX ➔ Spring Boot</span>
+                  <span class="timeline-status">CONFIGURED</span>
+                </div>
+              </div>
+              <p class="timeline-body">The recruiter customizes time limits (e.g., 48 hours), difficulty tier, required frameworks, and hidden test strictness before generating the project.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Updates assignment parameters and stores customized weightings for hidden unit tests, architecture quality, and code-specific MCQs.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-put">PUT</span> /api/v1/admin/assignments/{id}/configuration
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 4 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">4</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">📝 AI Project Blueprint Synthesis</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Spring Boot ➔ Claude AI ➔ MySQL</span>
+                  <span class="timeline-status">STATUS: BLUEPRINT_DRAFT</span>
+                </div>
+              </div>
+              <p class="timeline-body">Claude AI generates a complete, tailored production microservice specification based on <code>blueprint.md</code> with zero plagiarism risk.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Produces user stories, REST API specifications, database schemas, mock payloads, and hidden acceptance criteria in structured JSON format.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/admin/assignments/{id}/blueprints/generate
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 5 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">5</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">✅ Admin Blueprint Approval</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Admin ➔ Spring Boot ➔ MySQL</span>
+                  <span class="timeline-status">STATUS: AWAITING_GITHUB_USERNAME</span>
+                </div>
+              </div>
+              <p class="timeline-body">Recruiter reviews the generated blueprint and clicks Approve. The project is officially locked and queued for GitHub provisioning.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> State transitions from <code>BLUEPRINT_DRAFT</code> to <code>PROVISIONING</code> then to <code>AWAITING_GITHUB_USERNAME</code>. The candidate is sent their invitation email with a private link.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/admin/assignments/{id}/blueprints/{bpId}/approve
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 6 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">6</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🐙 GitHub Repo Provisioning & Timer Start</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Candidate ➔ GitHub API ➔ Spring Boot</span>
+                  <span class="timeline-status">STATUS: ASSIGNED</span>
+                </div>
+              </div>
+              <p class="timeline-body">Candidate inputs their GitHub username. The backend creates a private repo under the organization, pushes starter code, sets rulesets, and invites the candidate.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> GitHub API creates <code>assessment-platform/proj-sub-XXXX</code>, pushes boilerplate, adds candidate as collaborator. 48-hour countdown timer initiates in Redis and MySQL.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-put">PUT</span> /api/v1/candidate/github-username
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 7 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">7</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">💻 Candidate Development Window</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Candidate ➔ Local IDE ➔ Git Push</span>
+                  <span class="timeline-status">STATUS: IN_PROGRESS</span>
+                </div>
+              </div>
+              <p class="timeline-body">Candidate clones the private repository, reads the embedded <code>SPECIFICATION.md</code>, writes clean microservice code, and pushes commits to GitHub.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> GitHub webhooks optionally notify the backend of push events to update candidate activity pulse and commit velocity.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-get">GET</span> /api/v1/candidate/assignments/{id}
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 8 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">8</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🔒 Tamper-Proof Submission Lock</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Candidate ➔ Spring Boot ➔ GitHub API</span>
+                  <span class="timeline-status">STATUS: EVALUATING</span>
+                </div>
+              </div>
+              <p class="timeline-body">Candidate clicks "Submit Project". The platform locks the repository permanently to prevent any post-submission modifications.</p>
+              <div class="timeline-technical">
+                <strong>Critical Security Sequence:</strong>
+                <ol style="margin: 6px 0 0 16px; padding: 0;">
+                  <li>Revoke candidate write collaborator permission on GitHub API</li>
+                  <li>Query GitHub API for branch HEAD commit SHA</li>
+                  <li>Create immutable Git tag <code>submission-SUB-XXXX</code> at that exact SHA</li>
+                </ol>
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/candidate/assignments/{id}/submit
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 9 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">9</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">📦 Automated Sandbox Test Suite Execution</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Spring Boot ➔ GitHub Actions Runner</span>
+                  <span class="timeline-status">STATUS: EVALUATING</span>
+                </div>
+              </div>
+              <p class="timeline-body">Backend triggers an isolated GitHub Actions evaluation workflow running proprietary hidden unit, integration, and security test suites inside Docker.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Workflow dispatches with frozen commit SHA and encrypted runner callback token. Runs hidden test suites candidate never had access to.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">DISPATCH</span> evaluate.yml workflow
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 10 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">10</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🛡️ HMAC-SHA256 Signed Results Callback</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Sandbox Runner ➔ NGINX ➔ Spring Boot</span>
+                  <span class="timeline-status">STATUS: EVALUATING</span>
+                </div>
+              </div>
+              <p class="timeline-body">The sandbox container completes tests, signs the JSON results with HMAC-SHA256, and posts back to the platform callback endpoint.</p>
+              <div class="timeline-technical">
+                <strong>Under the Hood:</strong> Spring Boot validates the HMAC signature header against the secret key. If valid, automated test metrics and code coverage logs are stored in MySQL.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/callbacks/evaluations/{id}
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 11 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">11</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🔍 AI Code Quality Review & Tailored MCQs</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Spring Boot ➔ Claude AI ➔ MySQL</span>
+                  <span class="timeline-status">STATUS: MCQ_READY</span>
+                </div>
+              </div>
+              <p class="timeline-body">Claude AI analyzes candidate's actual written code for design patterns, SOLID principles, and synthesizes 12-15 multiple choice questions specifically about candidate's implementation.</p>
+              <div class="timeline-technical">
+                <strong>Authorship Verification:</strong> Questions ask: <em>"In your OrderService.java on line 42, why did you use ConcurrentHashMap instead of HashMap?"</em> — Impossible to cheat if someone else wrote the code!
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">KAFKA</span> Event: MCQ_SYNTHESIZED
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 12 -->
+          <div class="timeline-item">
+            <div class="timeline-dot">12</div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <div class="timeline-title">🎯 Timed MCQ Test & Final Hiring Report</div>
+                <div class="timeline-meta">
+                  <span class="timeline-actors">Candidate ➔ Spring Boot ➔ MySQL & Kafka</span>
+                  <span class="timeline-status">STATUS: REPORTED</span>
+                </div>
+              </div>
+              <p class="timeline-body">Candidate completes the 30-minute anti-cheat MCQ. The platform calculates the final weighted composite score and generates an executive hiring report.</p>
+              <div class="timeline-technical">
+                <strong>Final Weighted Formula:</strong>
+                35% Hidden Unit Tests + 25% AI Code Quality + 15% Requirement Coverage + 25% Tailored MCQ Score. Publishes <code>REPORT_GENERATED</code> to Kafka.
+              </div>
+              <div class="timeline-endpoint">
+                <span class="method-badge method-post">POST</span> /api/v1/candidate/mcq/submit
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2. SYNTAX-VALIDATED MERMAID SEQUENCE DIAGRAM (FAILSAFE CODED) -->
+        <div id="flow-mermaid" class="mermaid-box" style="display: none;">
+          <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor ATS as ATS / Recruiter
+    actor Candidate as Candidate
+    actor Admin as Admin
+    participant GW as NGINX Gateway (:80)
+    participant BE as Spring Boot Core (:8080)
+    participant DB as MySQL 8.4 (:3307)
+    participant GH as GitHub Cloud API
+    participant RN as Sandbox Runner
+
+    ATS->>GW: 1. POST /api/v1/intake/assignments
+    GW->>BE: Forward Intake Request
+    BE->>DB: Persist Records (Status: ANALYZING)
+    BE->>BE: AI Analyzes JD vs Resume
+    BE->>DB: Save Competency Matrix (Status: ANALYZED)
+
+    Admin->>GW: 2. Configure and Trigger Blueprint
+    GW->>BE: Generate Blueprint
+    BE->>DB: Save Draft (Status: BLUEPRINT_DRAFT)
+    Admin->>GW: 3. Approve Blueprint
+    BE->>DB: Set Status: AWAITING_GITHUB_USERNAME
+
+    Candidate->>GW: 4. Submit GitHub Handle
+    BE->>GH: Create Private Repo and Boilerplate
+    BE->>GH: Invite Candidate as Collaborator
+    BE->>DB: Set Status: ASSIGNED (Timer Starts)
+
+    Candidate->>GW: 5. Submit Assignment
+    BE->>GH: Step 1: Revoke Write Access
+    BE->>GH: Step 2: Read HEAD Commit SHA
+    BE->>GH: Step 3: Create Immutable Git Tag
+    BE->>DB: Set Status: EVALUATING
+
+    BE->>RN: 6. Dispatch Hidden Test Suite
+    RN->>GW: 7. POST Evaluation Results (HMAC Signed)
+    GW->>BE: Validate HMAC Signature
+    BE->>DB: Store Test Metrics
+
+    BE->>BE: 8. AI Code Review and Tailored MCQs
+    BE->>DB: Set Status: MCQ_READY
+    Candidate->>GW: 9. Complete 30-min Timed MCQ
+    BE->>DB: Compute Weighted Score (Status: REPORTED)
+          </pre>
+        </div>
+
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('architecture')">← Back: HLD Architecture</button>
+        <button class="btn btn-primary" onclick="goToTab('components')">Next: Who Does What →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 6: WHO DOES WHAT (LLD) -->
+    <section id="components" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>📦</span> Who Does What: Low-Level Domain Packages
+        </div>
+        <p class="card-desc">Clear breakdown of the 20 packages and what each class is responsible for:</p>
+
+        <div class="grid-2">
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--primary); font-size:1.05rem;">intake/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>IntakeService.java</code>: Ingests ATS requests, persists Company/Job/Candidate entities, and mints public <code>ASSIGN-XXXX</code> IDs.
+            </p>
+          </div>
+
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--purple); font-size:1.05rem;">blueprint/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>BlueprintService.java</code>: Handles AI architecture synthesis, versioned drafts, manual edits, and 1-click approvals.
+            </p>
+          </div>
+
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--emerald); font-size:1.05rem;">generation/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>ProjectGenerator.java</code>: Merges blueprint specs with vetted templates to generate runnable starter code and Markdown docs.
+            </p>
+          </div>
+
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--amber); font-size:1.05rem;">github/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>GitHubClient.java</code>: Creates private GitHub repos, commits skeleton code, manages candidate access, and sets rulesets.
+            </p>
+          </div>
+
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--rose); font-size:1.05rem;">submission/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>SubmissionService.java</code>: Executes atomic commit freeze. <code>DeadlineScheduler.java</code> auto-submits overdue tests.
+            </p>
+          </div>
+
+          <div class="stat-card" style="background:#ffffff;">
+            <strong style="color:var(--cyan); font-size:1.05rem;">mcq/ Package</strong>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              <code>McqService.java</code>: Generates 12–15 code-based MCQs, cryptographically shuffles options, handles 30-min timer, and grades responses.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('flow')">← Back: 12-Stage Flow</button>
+        <button class="btn btn-primary" onclick="goToTab('database')">Next: Database →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 7: DATABASE -->
+    <section id="database" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>🗄️</span> Database Schema Architecture (MySQL 8.4)
+        </div>
+        <p class="card-desc">12 relational tables managed via Flyway database migration (<code>V1__init_schema.sql</code>):</p>
+
+        <div class="clean-table-box">
+          <table>
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>Public ID</th>
+                <th>Relationship</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>companies</code></td><td><code>external_id</code></td><td>Root Entity</td><td>Hiring company profile and technical standards.</td></tr>
+              <tr><td><code>jobs</code></td><td><code>external_id</code></td><td>FK to Company</td><td>Job description, seniority, and required technical skills.</td></tr>
+              <tr><td><code>candidates</code></td><td><code>external_id</code></td><td>Root Entity</td><td>Candidate resume, contact info, and GitHub handle.</td></tr>
+              <tr><td><code>assignments</code></td><td><code>ASSIGN-XXXX</code></td><td>Links Comp/Job/Cand</td><td>Main state machine tracking the 19 lifecycle statuses.</td></tr>
+              <tr><td><code>blueprints</code></td><td><code>BP-XXXX</code></td><td>FK to Assignment</td><td>Versioned architecture specification and acceptance criteria.</td></tr>
+              <tr><td><code>blueprint_requirements</code></td><td><code>REQ-001..</code></td><td>FK to Blueprint</td><td>Individual functional and non-functional requirements.</td></tr>
+              <tr><td><code>projects</code></td><td><code>PROJ-XXXX</code></td><td>FK to Assignment</td><td>Starter code manifest and stack association.</td></tr>
+              <tr><td><code>github_repositories</code></td><td><code>REPO-XXXX</code></td><td>FK to Assignment</td><td>Tracks private repo URL, branch, and candidate permissions.</td></tr>
+              <tr><td><code>push_events</code></td><td><code>delivery_id</code></td><td>FK to Repo</td><td>Immutable audit of GitHub webhook push deliveries.</td></tr>
+              <tr><td><code>submissions</code></td><td><code>SUB-XXXX</code></td><td>FK to Assignment</td><td>Frozen commit SHA and immutable tag reference.</td></tr>
+              <tr><td><code>evaluation_runs</code></td><td><code>EVAL-XXXX</code></td><td>FK to Submission</td><td>Automated CI test run metrics (unit tests & hidden tests).</td></tr>
+              <tr><td><code>code_analyses</code></td><td><code>CA-XXXX</code></td><td>FK to Submission</td><td>AI code architecture review and requirement coverage.</td></tr>
+              <tr><td><code>mcq_assessments</code></td><td><code>ASMT-XXXX</code></td><td>FK to Assignment</td><td>Candidate's timed 30-minute MCQ exam header and score.</td></tr>
+              <tr><td><code>mcq_questions</code></td><td><code>MCQ-001..</code></td><td>FK to Assessment</td><td>Questions citing candidate's code (options shuffled server-side).</td></tr>
+              <tr><td><code>final_reports</code></td><td><code>RPT-XXXX</code></td><td>FK to Assignment</td><td>Traceable composite hiring report (35/25/15/25 weighted score).</td></tr>
+              <tr><td><code>audit_events</code></td><td><code>id</code></td><td>FK to Assignment</td><td>Append-only telemetry log mirrored to Kafka in real-time.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('components')">← Back: Who Does What</button>
+        <button class="btn btn-primary" onclick="goToTab('api')">Next: API Directory →</button>
+      </div>
+    </section>
+
+    <!-- CHAPTER 8: API DIRECTORY -->
+    <section id="api" class="chapter">
+      <div class="card">
+        <div class="card-heading">
+          <span>🔌</span> REST API Directory (Searchable)
+        </div>
+        <p class="card-desc">Type below to instantly search endpoints by path, role, or method:</p>
+
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="apiFilter" placeholder="Filter by endpoint path (e.g. /submit, /admin, /mcq)...">
+        </div>
+
+        <div class="clean-table-box">
+          <table id="apiTable">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Endpoint Path</th>
+                <th>Role Required</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/intake/assignments</code></td><td><span class="pill pill-amber">INTEGRATION</span></td><td>ATS intake: Ingests Job Description & Candidate Resume.</td></tr>
+              <tr><td><span class="pill pill-blue">GET</span></td><td><code>/api/v1/admin/stats</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Returns platform KPI metrics: total, active, completed, avg score.</td></tr>
+              <tr><td><span class="pill pill-blue">GET</span></td><td><code>/api/v1/admin/assignments</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Paginated list of all candidate assignments with status.</td></tr>
+              <tr><td><span class="pill pill-amber">PUT</span></td><td><code>/api/v1/admin/assignments/{id}/configuration</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Sets tech stack (Java, Spring Boot, MySQL, Kafka) and duration.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/admin/assignments/{id}/blueprints/generate</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Triggers AI synthesis of project blueprint architecture.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/admin/assignments/{id}/auto-blueprint</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>1-Click shortcut: Configures default Java stack & synthesizes blueprint.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/admin/assignments/{id}/blueprints/{id}/approve</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Approves blueprint and triggers private GitHub repo creation.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/admin/assignments/{id}/retry</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Safely retries a failed pipeline step from point of interruption.</td></tr>
+              <tr><td><span class="pill pill-blue">GET</span></td><td><code>/api/v1/admin/assignments/{id}/report</code></td><td><span class="pill pill-rose">ADMIN</span></td><td>Fetches final hiring scorecard with 4-factor weighted score.</td></tr>
+              <tr><td><span class="pill pill-blue">GET</span></td><td><code>/api/v1/candidate/assignments/{id}</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Candidate dashboard: Project instructions, git clone URL, timer, CI status.</td></tr>
+              <tr><td><span class="pill pill-amber">PUT</span></td><td><code>/api/v1/candidate/github-username</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Candidate links GitHub handle, triggering instant repo collaborator invite.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/candidate/assignments/{id}/submit</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Submits take-home project, freezing commit and starting evaluation.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/candidate/assignments/{id}/assessment/start</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Starts 30-min timed MCQ test on candidate's code; returns shuffled options.</td></tr>
+              <tr><td><span class="pill pill-amber">PUT</span></td><td><code>/api/v1/candidate/assignments/{id}/assessment/answers/{qCode}</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Submits candidate's answer for question (e.g. <code>MCQ-001</code>).</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/candidate/assignments/{id}/assessment/finish</code></td><td><span class="pill pill-blue">CANDIDATE</span></td><td>Finishes MCQ test, calculates MCQ score, triggers final report generation.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/webhooks/github</code></td><td><span class="pill pill-purple">HMAC</span></td><td>GitHub Webhook: Receives push events verified with <code>X-Hub-Signature-256</code>.</td></tr>
+              <tr><td><span class="pill pill-green">POST</span></td><td><code>/api/v1/callbacks/evaluations/{id}</code></td><td><span class="pill pill-purple">HMAC</span></td><td>CI Runner Callback: Receives test results signed with <code>X-Signature-256</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToTab('database')">← Back: Database</button>
+        <button class="btn btn-primary" onclick="goToTab('overview')">↺ Back to Start</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Initialize Mermaid safely
+    try {
+      if (window.mermaid) {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'neutral',
+          securityLevel: 'loose',
+          fontFamily: 'Plus Jakarta Sans',
+          themeVariables: {
+            primaryColor: '#eff6ff',
+            primaryTextColor: '#1e293b',
+            primaryBorderColor: '#3b82f6',
+            lineColor: '#2563eb',
+            secondaryColor: '#f5f3ff',
+            tertiaryColor: '#ffffff'
+          }
+        });
+      }
+    } catch(err) {
+      console.warn("Mermaid init notice:", err);
+    }
+
+    // Toggle Architecture Views (Visual vs Mermaid)
+    function toggleArchView(mode) {
+      const visual = document.getElementById('arch-visual');
+      const mermaidBox = document.getElementById('arch-mermaid');
+      const btnVisual = document.getElementById('btnArchVisual');
+      const btnMermaid = document.getElementById('btnArchMermaid');
+
+      if (mode === 'visual') {
+        visual.style.display = 'block';
+        mermaidBox.style.display = 'none';
+        btnVisual.classList.add('active');
+        btnMermaid.classList.remove('active');
+      } else {
+        visual.style.display = 'none';
+        mermaidBox.style.display = 'flex';
+        btnVisual.classList.remove('active');
+        btnMermaid.classList.add('active');
+        try {
+          if (window.mermaid) {
+            mermaid.run({ nodes: mermaidBox.querySelectorAll('.mermaid') });
+          }
+        } catch(e) {
+          console.warn("Mermaid render error:", e);
+        }
+      }
+    }
+
+    // Toggle 12-Stage Flow Views (Visual vs Mermaid)
+    function toggleFlowView(mode) {
+      const visual = document.getElementById('flow-visual');
+      const mermaidBox = document.getElementById('flow-mermaid');
+      const btnVisual = document.getElementById('btnFlowVisual');
+      const btnMermaid = document.getElementById('btnFlowMermaid');
+
+      if (mode === 'visual') {
+        visual.style.display = 'block';
+        mermaidBox.style.display = 'none';
+        btnVisual.classList.add('active');
+        btnMermaid.classList.remove('active');
+      } else {
+        visual.style.display = 'none';
+        mermaidBox.style.display = 'flex';
+        btnVisual.classList.remove('active');
+        btnMermaid.classList.add('active');
+        try {
+          if (window.mermaid) {
+            mermaid.run({ nodes: mermaidBox.querySelectorAll('.mermaid') });
+          }
+        } catch(e) {
+          console.warn("Mermaid render error:", e);
+        }
+      }
+    }
+
+    // Story Navigation Tab Switcher
+    const pills = document.querySelectorAll('.story-pill');
+    const chapters = document.querySelectorAll('.chapter');
+
+    function goToTab(tabId) {
+      chapters.forEach(c => {
+        if (c.getAttribute('id') === tabId) {
+          c.classList.add('active');
+        } else {
+          c.classList.remove('active');
+        }
+      });
+
+      pills.forEach(p => {
+        if (p.getAttribute('data-tab') === tabId) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        goToTab(pill.getAttribute('data-tab'));
+      });
+    });
+
+    // Real-Time Search in API Directory
+    const apiFilter = document.getElementById('apiFilter');
+    const apiTable = document.getElementById('apiTable');
+    if (apiFilter && apiTable) {
+      apiFilter.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const rows = apiTable.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+          const text = row.innerText.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
